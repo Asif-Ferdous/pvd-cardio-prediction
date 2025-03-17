@@ -22,6 +22,10 @@ def load_models():
     try:
         logger.info("Starting to load models and data files")
         
+        # Log the current working directory
+        current_working_directory = os.getcwd()
+        logger.info(f"Current working directory: {current_working_directory}")
+        
         # Check if files exist before loading
         required_files = [
             "feature_names.csv", "feature_scaler.pkl", "cardio_probabilities.pkl",
@@ -32,11 +36,12 @@ def load_models():
         ]
         
         for file in required_files:
-            if not os.path.exists(file):
-                logger.error(f"Required file not found: {file}")
+            absolute_path = os.path.abspath(file)
+            if not os.path.exists(absolute_path):
+                logger.error(f"Required file not found: {absolute_path}")
                 return None, None, None, None, None
             else:
-                logger.info(f"Found required file: {file}")
+                logger.info(f"Found required file: {absolute_path}")
         
         feature_names = pd.read_csv("feature_names.csv")["Feature Names"].tolist()
         logger.info(f"Loaded feature names: {feature_names}")
