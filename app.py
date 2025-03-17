@@ -35,6 +35,8 @@ def load_models():
             if not os.path.exists(file):
                 logger.error(f"Required file not found: {file}")
                 return None, None, None, None, None
+            else:
+                logger.info(f"Found required file: {file}")
         
         feature_names = pd.read_csv("feature_names.csv")["Feature Names"].tolist()
         logger.info(f"Loaded feature names: {feature_names}")
