@@ -328,7 +328,7 @@
         
         .spinner {
             border: 5px solid rgba(0, 0, 0, 0.1);
-            border-top-color: var(--primary-color);
+            border-top-color: var (--primary-color);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -595,7 +595,14 @@
                     },
                     body: JSON.stringify(formData)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || errorData.details || 'Server error occurred');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     // Hide loading
                     loading.style.display = 'none';
@@ -611,8 +618,27 @@
                 })
                 .catch(error => {
                     loading.style.display = 'none';
-                    alert('An error occurred while processing your request. Please try again.');
                     console.error('Error:', error);
+                    
+                    // Create error alert or display in results card
+                    resultsCard.style.display = 'block';
+                    resultsCard.innerHTML = `
+                        <h2><i class="fas fa-exclamation-triangle"></i> Error</h2>
+                        <div class="alert alert-danger">
+                            <p><strong>Error:</strong> ${error.message || 'An error occurred while processing your request.'}</p>
+                            <p>Please try again or contact support if the problem persists.</p>
+                            <p><small>Error details: ${error}</small></p>
+                        </div>
+                        <button class="btn" onclick="window.location.reload()">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    `;
+                    
+                    // Scroll to top to see error
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
                 });
             });
             
@@ -775,7 +801,28 @@
                     }
                 }
             }
+            
+            // Add test connection function
+            window.testConnection = function() {
+                fetch('/test')
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`Test result: ${data.status}\n${data.message}`);
+                        console.log('Test details:', data);
+                    })
+                    .catch(error => {
+                        alert(`Test failed: ${error}`);
+                        console.error('Test error:', error);
+                    });
+            };
         });
     </script>
+
+    <!-- Add a hidden test button at the bottom of the page -->
+    <div style="text-align: center; margin-top: 10px; font-size: 0.8em;">
+        <button onclick="testConnection()" style="border: none; background: none; color: #999; cursor: pointer; text-decoration: underline;">
+            Test Connection
+        </button>
+    </div>
 </body>
 </html>
