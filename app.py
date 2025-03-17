@@ -1,6 +1,5 @@
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
-import numpy as np
 import joblib
 import os
 import logging
@@ -40,7 +39,14 @@ def load_models():
         # Log the current working directory and environment
         current_working_directory = os.getcwd()
         logger.info(f"Current working directory: {current_working_directory}")
-        logger.info(f"Is production (Render): {bool(os.environ.get('RENDER'))}")
+        
+        # Import numpy here to catch import errors early
+        try:
+            import numpy as np
+            logger.info(f"NumPy version: {np.__version__}")
+        except ImportError as e:
+            logger.error(f"Error importing NumPy: {str(e)}")
+            return None, None, None, None, None
         
         # Check if files exist before loading
         required_files = [
@@ -62,40 +68,50 @@ def load_models():
             else:
                 logger.info(f"Found required file: {file_path}")
         
-        # Load feature names
-        feature_names = pd.read_csv(get_model_path("feature_names.csv"))["Feature Names"].tolist()
-        logger.info(f"Loaded feature names: {feature_names}")
-        
-        # Load scaler
-        scaler = joblib.load(get_model_path("feature_scaler.pkl"))
-        logger.info("Loaded feature scaler")
-        
-        # Load cardio probabilities
-        cardio_probabilities = joblib.load(get_model_path("cardio_probabilities.pkl"))
-        logger.info("Loaded cardio probabilities")
-        
-        # Load PVD models
-        models_pvd = {
-            "DecisionTree": joblib.load(get_model_path("DecisionTree_model_pvd.pkl")),
-            "RandomForest": joblib.load(get_model_path("RandomForest_model_pvd.pkl")),
-            "SGD": joblib.load(get_model_path("SGD_model_pvd.pkl")),
-            "XGBoost": joblib.load(get_model_path("XGBoost_model_pvd.pkl"))
-        }
-        logger.info("Loaded PVD models successfully")
-        
-        # Load Cardio models
-        models_cardio = {
-            "DecisionTree": joblib.load(get_model_path("DecisionTree_model_cardio.pkl")),
-            "RandomForest": joblib.load(get_model_path("RandomForest_model_cardio.pkl")),
-            "SGD": joblib.load(get_model_path("SGD_model_cardio.pkl")),
-            "XGBoost": joblib.load(get_model_path("XGBoost_model_cardio.pkl"))
-        }
-        logger.info("Loaded Cardio models successfully")
-        
-        return feature_names, scaler, models_pvd, models_cardio, cardio_probabilities
+        try:
+            # Load feature names first since it's a simple CSV
+            feature_names = pd.read_csv(get_model_path("feature_names.csv"))["Feature Names"].tolist()
+            logger.info(f"Loaded feature names: {feature_names}")
+            
+            # Try loading models with explicit numpy array conversion
+            scaler = joblib.load(get_model_path("feature_scaler.pkl"))
+            logger.info("Loaded feature scaler")
+            
+            cardio_probabilities = joblib.load(get_model_path("cardio_probabilities.pkl"))
+            logger.info("Loaded cardio probabilities")
+            
+            # Load PVD models with extra error handling
+            models_pvd = {}
+            for name in ["DecisionTree", "RandomForest", "SGD", "XGBoost"]:
+                try:
+                    model_path = get_model_path(f"{name}_model_pvd.pkl")
+                    models_pvd[name] = joblib.load(model_path)
+                    logger.info(f"Loaded PVD model: {name}")
+                except Exception as e:
+                    logger.error(f"Error loading PVD model {name}: {str(e)}")
+                    return None, None, None, None, None
+            
+            # Load Cardio models with extra error handling
+            models_cardio = {}
+            for name in ["DecisionTree", "RandomForest", "SGD", "XGBoost"]:
+                try:
+                    model_path = get_model_path(f"{name}_model_cardio.pkl")
+                    models_cardio[name] = joblib.load(model_path)
+                    logger.info(f"Loaded Cardio model: {name}")
+                except Exception as e:
+                    logger.error(f"Error loading Cardio model {name}: {str(e)}")
+                    return None, None, None, None, None
+            
+            logger.info("All models loaded successfully")
+            return feature_names, scaler, models_pvd, models_cardio, cardio_probabilities
+            
+        except Exception as e:
+            logger.error(f"Error during model loading: {str(e)}")
+            logger.error(traceback.format_exc())
+            return None, None, None, None, None
     
     except Exception as e:
-        logger.error(f"Error loading models: {str(e)}")
+        logger.error(f"Error in load_models: {str(e)}")
         logger.error(traceback.format_exc())
         return None, None, None, None, None
 
