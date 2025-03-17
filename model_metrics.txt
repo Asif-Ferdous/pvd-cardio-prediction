@@ -1,0 +1,64 @@
+PVD Models Metrics:
+
+DecisionTree:
+Accuracy: 0.8262
+Precision: 0.8351
+Recall: 0.7224
+F1: 0.7747
+AUC-ROC: 0.8109
+
+RandomForest:
+Accuracy: 0.8956
+Precision: 0.9064
+Recall: 0.8336
+F1: 0.8685
+AUC-ROC: 0.8864
+
+SGD:
+Accuracy: 0.8489
+Precision: 0.8866
+Recall: 0.7276
+F1: 0.7993
+AUC-ROC: 0.8310
+
+XGBoost:
+Accuracy: 0.7757
+Precision: 0.9343
+Recall: 0.4922
+F1: 0.6448
+AUC-ROC: 0.7339
+
+Cardio Models Metrics:
+
+DecisionTree:
+Accuracy: 0.7442
+Precision: 0.7588
+Recall: 0.8275
+F1: 0.7917
+AUC-ROC: 0.7266
+
+RandomForest:
+Accuracy: 0.7310
+Precision: 0.7330
+Recall: 0.8523
+F1: 0.7882
+AUC-ROC: 0.7053
+
+SGD:
+Accuracy: 0.7075
+Precision: 0.7173
+Recall: 0.8284
+F1: 0.7689
+AUC-ROC: 0.6819
+
+XGBoost:
+Accuracy: 0.7551
+Precision: 0.7551
+Recall: 0.8630
+F1: 0.8054
+AUC-ROC: 0.7323
+
+Cardiovascular Disease Baseline Probabilities:
+Overall population: 0.4948
+Population with PVD: 0.7028
+Population without PVD: 0.4034
