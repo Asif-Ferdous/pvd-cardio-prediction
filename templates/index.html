@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardioVascular & PVD Risk Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --danger-color: #e63946;
+            --info-color: #2a9d8f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            text-align: center;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h2 i {
+            margin-right: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+        
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .radio-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .radio-option input:checked + label {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background-color: rgba(74, 149, 239, 0.1);
+            border-left: 4px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .alert-warning {
+            background-color: rgba(247, 37, 133, 0.1);
+            border-left: 4px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .alert-danger {
+            background-color: rgba(230, 57, 70, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .result-section {
+            margin-bottom: 30px;
+        }
+        
+        .result-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .risk-meter {
+            height: 25px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .risk-level {
+            height: 100%;
+            transition: width 1s ease-out;
+            border-radius: 15px;
+        }
+        
+        .risk-low {
+            background: linear-gradient(90deg, #48cae4, #90e0ef);
+        }
+        
+        .risk-moderate {
+            background: linear-gradient(90deg, #ffd166, #ffa200);
+        }
+        
+        .risk-high {
+            background: linear-gradient(90deg, #ff5e5b, #d00000);
+        }
+        
+        .risk-value {
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .impact-visualization {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .impact-arrow {
+            font-size: 2rem;
+            color: var(--danger-color);
+            margin: 0 15px;
+        }
+        
+        .recommendation-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .recommendation-icon {
+            background-color: var(--accent-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        
+        .recommendation-text {
+            flex: 1;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            padding: 20px;
+        }
+        
+        .disclaimer {
+            background-color: rgba(0,0,0,0.02);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            border-left: 3px solid #adb5bd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-heartbeat"></i> CardioVascular & PVD Risk Assessment</h1>
+            <p>Advanced risk prediction system to detect Peripheral Vascular Disease (PVD) and analyze its impact on cardiovascular risk</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="card">
+                <h2><i class="fas fa-user-md"></i> Patient Information</h2>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Fill in the form below for an instant risk assessment.
+                </div>
+                
+                <form id="assessment-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age (years)</label>
+                            <input type="number" class="form-control" id="age" name="age" min="18" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select class="form-control" id="gender" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="height">Height (cm)</label>
+                            <input type="number" class="form-control" id="height" name="height" min="140" max="220" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" name="weight" min="40" max="200" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ap_hi">Systolic Blood Pressure (mmHg)</label>
+                            <input type="number" class="form-control" id="ap_hi" name="ap_hi" min="80" max="220" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ap_lo">Diastolic Blood Pressure (mmHg)</label>
+                            <input type="number" class="form-control" id="ap_lo" name="ap_lo" min="40" max="140" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cholesterol">Cholesterol Level</label>
+                        <select class="form-control" id="cholesterol" name="cholesterol" required>
+                            <option value="">Select Cholesterol Level</option>
+                            <option value="1">Normal</option>
+                            <option value="2">Above Normal</option>
+                            <option value="3">Well Above Normal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gluc">Glucose Level</label>
+                        <select class="form-control" id="gluc" name="gluc" required>
+                            <option value="">Select Glucose Level</option>
+                            <option value="1">Normal</option>
+                            <option value="2">Above Normal</option>
+                            <option value="3">Well Above Normal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Do you smoke?</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="smoke-no" name="smoke" value="0" required>
+                                <label for="smoke-no">No</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="smoke-yes" name="smoke" value="1">
+                                <label for="smoke-yes">Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Do you consume alcohol?</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="alco-no" name="alco" value="0" required>
+                                <label for="alco-no">No</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="alco-yes" name="alco" value="1">
+                                <label for="alco-yes">Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Are you physically active?</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="active-no" name="active" value="0" required>
+                                <label for="active-no">No</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="active-yes" name="active" value="1">
+                                <label for="active-yes">Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="model">Predictive Model Selection</label>
+                        <select class="form-control" id="model" name="model" required>
+                            <option value="">Select Model</option>
+                            <option value="RandomForest" selected>Random Forest (Recommended)</option>
+                            <option value="XGBoost">XGBoost</option>
+                            <option value="DecisionTree">Decision Tree</option>
+                            <option value="SGD">Stochastic Gradient Descent</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-block">
+                        <i class="fas fa-calculator"></i> Calculate Risk
+                    </button>
+                </form>
+                
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing data, please wait...</p>
+                </div>
+            </div>
+            
+            <div class="card results" id="results-card">
+                <h2><i class="fas fa-chart-pie"></i> Risk Assessment Results</h2>
+                
+                <div class="result-section" id="pvd-results">
+                    <h3><i class="fas fa-heartbeat"></i> PVD Risk Assessment</h3>
+                    <div class="risk-meter">
+                        <div class="risk-level" id="pvd-risk-bar"></div>
+                    </div>
+                    <p class="risk-value" id="pvd-risk-value"></p>
+                    <div id="pvd-alert" class="alert"></div>
+                </div>
+                
+                <div class="result-section" id="cardio-results" style="display: none;">
+                    <h3><i class="fas fa-heart"></i> Cardiovascular Disease Risk</h3>
+                    <div class="risk-meter">
+                        <div class="risk-level" id="cardio-risk-bar"></div>
+                    </div>
+                    <p class="risk-value" id="cardio-risk-value"></p>
+                    <div id="cardio-alert" class="alert"></div>
+                </div>
+                
+                <div class="result-section" id="impact-results" style="display: none;">
+                    <h3><i class="fas fa-chart-line"></i> Impact of PVD on Cardiovascular Risk</h3>
+                    <div class="chart-container">
+                        <canvas id="impact-chart"></canvas>
+                    </div>
+                    <div class="impact-visualization">
+                        <div>
+                            <strong>Without PVD:</strong>
+                            <span id="risk-without-pvd">-</span>
+                        </div>
+                        <div class="impact-arrow">
+                            <i class="fas fa-long-arrow-alt-right"></i>
+                        </div>
+                        <div>
+                            <strong>With PVD:</strong>
+                            <span id="risk-with-pvd">-</span>
+                        </div>
+                    </div>
+                    <p><strong>PVD increases your cardiovascular risk by <span id="impact-percentage">-</span></strong></p>
+                    <div id="impact-alert" class="alert"></div>
+                </div>
+                
+                <div class="result-section" id="recommendations" style="display: none;">
+                    <h3><i class="fas fa-clipboard-list"></i> Personalized Recommendations</h3>
+                    <div id="recommendations-list"></div>
+                </div>
+                
+                <div class="disclaimer">
+                    <strong>Medical Disclaimer:</strong> This tool is for educational and screening purposes only. It should not be used for diagnosis or treatment decisions. Always consult with a qualified healthcare provider for medical advice.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CardioVascular & PVD Risk Assessment System</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('assessment-form');
+            const loading = document.querySelector('.loading');
+            const resultsCard = document.getElementById('results-card');
+            let impactChart = null;
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading
+                loading.style.display = 'block';
+                resultsCard.style.display = 'none';
+                
+                // Collect form data
+                const formData = {
+                    age: parseInt(document.getElementById('age').value),
+                    gender: parseInt(document.getElementById('gender').value),
+                    height: parseFloat(document.getElementById('height').value),
+                    weight: parseFloat(document.getElementById('weight').value),
+                    ap_hi: parseInt(document.getElementById('ap_hi').value),
+                    ap_lo: parseInt(document.getElementById('ap_lo').value),
+                    cholesterol: parseInt(document.getElementById('cholesterol').value),
+                    gluc: parseInt(document.getElementById('gluc').value),
+                    smoke: parseInt(document.querySelector('input[name="smoke"]:checked').value),
+                    alco: parseInt(document.querySelector('input[name="alco"]:checked').value),
+                    active: parseInt(document.querySelector('input[name="active"]:checked').value),
+                    model: document.getElementById('model').value
+                };
+                
+                // Send to server
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading
+                    loading.style.display = 'none';
+                    
+                    // Display results
+                    displayResults(data);
+                    
+                    // Scroll to top of the page to see results
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    alert('An error occurred while processing your request. Please try again.');
+                    console.error('Error:', error);
+                });
+            });
+            
+            function displayResults(data) {
+                // Show results card
+                resultsCard.style.display = 'block';
+                
+                // PVD Risk Display
+                const pvdRiskBar = document.getElementById('pvd-risk-bar');
+                const pvdRiskValue = document.getElementById('pvd-risk-value');
+                const pvdAlert = document.getElementById('pvd-alert');
+                
+                // Set risk bar
+                pvdRiskBar.style.width = `${data.pvd_probability}%`;
+                pvdRiskValue.textContent = `Risk Level: ${data.pvd_risk_level} (${data.pvd_probability.toFixed(1)}%)`;
+                
+                // Set bar class based on risk level
+                pvdRiskBar.className = 'risk-level';
+                if (data.pvd_risk_level === 'Low') {
+                    pvdRiskBar.classList.add('risk-low');
+                    pvdAlert.classList.add('alert-success');
+                    pvdAlert.innerHTML = '<i class="fas fa-check-circle"></i> Your PVD risk is currently low.';
+                } else if (data.pvd_risk_level === 'Moderate') {
+                    pvdRiskBar.classList.add('risk-moderate');
+                    pvdAlert.classList.add('alert-warning');
+                    pvdAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> You have a moderate risk of developing PVD.';
+                } else {
+                    pvdRiskBar.classList.add('risk-high');
+                    pvdAlert.classList.add('alert-danger');
+                    pvdAlert.innerHTML = '<i class="fas fa-exclamation-triangle"></i> You have a high risk of developing PVD.';
+                }
+                
+                // If PVD is detected, show cardio and impact sections
+                if (data.pvd_detected) {
+                    // Show cardio risk section
+                    document.getElementById('cardio-results').style.display = 'block';
+                    
+                    const cardioRiskBar = document.getElementById('cardio-risk-bar');
+                    const cardioRiskValue = document.getElementById('cardio-risk-value');
+                    const cardioAlert = document.getElementById('cardio-alert');
+                    
+                    // Set cardio risk bar
+                    cardioRiskBar.style.width = `${data.cardio_probability}%`;
+                    cardioRiskValue.textContent = `Risk Level: ${data.cardio_probability < 30 ? 'Low' : data.cardio_probability < 70 ? 'Moderate' : 'High'} (${data.cardio_probability.toFixed(1)}%)`;
+                    
+                    // Set cardio bar class based on risk level
+                    cardioRiskBar.className = 'risk-level';
+                    if (data.cardio_probability < 30) {
+                        cardioRiskBar.classList.add('risk-low');
+                        cardioAlert.classList.add('alert-success');
+                        cardioAlert.innerHTML = '<i class="fas fa-check-circle"></i> Your cardiovascular disease risk is currently low.';
+                    } else if (data.cardio_probability < 70) {
+                        cardioRiskBar.classList.add('risk-moderate');
+                        cardioAlert.classList.add('alert-warning');
+                        cardioAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> You have a moderate risk of developing cardiovascular disease.';
+                    } else {
+                        cardioRiskBar.classList.add('risk-high');
+                        cardioAlert.classList.add('alert-danger');
+                        cardioAlert.innerHTML = '<i class="fas fa-exclamation-triangle"></i> You have a high risk of developing cardiovascular disease.';
+                    }
+                    
+                    // Show impact section
+                    document.getElementById('impact-results').style.display = 'block';
+                    
+                    // Update impact values
+                    document.getElementById('risk-without-pvd').textContent = `${data.impact.without_pvd.toFixed(1)}%`;
+                    document.getElementById('risk-with-pvd').textContent = `${data.impact.with_pvd.toFixed(1)}%`;
+                    document.getElementById('impact-percentage').textContent = `${data.impact.impact_percentage.toFixed(1)}%`;
+                    
+                    // Impact alert
+                    const impactAlert = document.getElementById('impact-alert');
+                    impactAlert.className = 'alert';
+                    
+                    if (data.impact.severity === 'Low') {
+                        impactAlert.classList.add('alert-info');
+                        impactAlert.innerHTML = '<i class="fas fa-info-circle"></i> PVD has a low impact on your cardiovascular risk.';
+                    } else if (data.impact.severity === 'Moderate') {
+                        impactAlert.classList.add('alert-warning');
+                        impactAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> PVD has a moderate impact on your cardiovascular risk.';
+                    } else {
+                        impactAlert.classList.add('alert-danger');
+                        impactAlert.innerHTML = '<i class="fas fa-exclamation-triangle"></i> PVD has a significant impact on your cardiovascular risk.';
+                    }
+                    
+                    // Create or update chart
+                    if (impactChart) {
+                        impactChart.destroy();
+                    }
+                    
+                    const ctx = document.getElementById('impact-chart').getContext('2d');
+                    impactChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Without PVD', 'With PVD'],
+                            datasets: [{
+                                label: 'Cardiovascular Disease Risk (%)',
+                                data: [data.impact.without_pvd, data.impact.with_pvd],
+                                backgroundColor: [
+                                    'rgba(75, 192, 192, 0.7)',
+                                    'rgba(255, 99, 132, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(255, 99, 132, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: {
+                                        display: true,
+                                        text: 'Risk (%)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'PVD Impact on Cardiovascular Risk',
+                                    font: {
+                                        size: 16
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Risk: ${context.parsed.y.toFixed(1)}%`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Show recommendations
+                    if (data.recommendations) {
+                        document.getElementById('recommendations').style.display = 'block';
+                        const recommendationsContainer = document.getElementById('recommendations-list');
+                        recommendationsContainer.innerHTML = '';
+                        
+                        data.recommendations.forEach((rec, index) => {
+                            const recCard = document.createElement('div');
+                            recCard.className = 'recommendation-card';
+                            recCard.innerHTML = `
+                                <div class="recommendation-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="recommendation-text">
+                                    ${rec}
+                                </div>
+                            `;
+                            recommendationsContainer.appendChild(recCard);
+                        });
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
