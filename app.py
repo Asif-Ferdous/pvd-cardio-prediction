@@ -16,15 +16,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def get_model_path(filename):
+    """Get absolute path for model files"""
+    # Check if we're in production (Render) or development
+    if os.environ.get('RENDER'):
+        # In production, files are in the same directory as the app
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    else:
+        # In development, files are in the models directory
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
+    
+    return os.path.join(base_path, filename)
+
 # Load models and data
 def load_models():
     """Load all necessary models and files"""
     try:
         logger.info("Starting to load models and data files")
         
-        # Log the current working directory
+        # Log the current working directory and environment
         current_working_directory = os.getcwd()
         logger.info(f"Current working directory: {current_working_directory}")
+        logger.info(f"Is production (Render): {bool(os.environ.get('RENDER'))}")
         
         # Check if files exist before loading
         required_files = [
@@ -35,36 +48,44 @@ def load_models():
             "SGD_model_cardio.pkl", "XGBoost_model_cardio.pkl"
         ]
         
+        # Verify all files exist and log their paths
         for file in required_files:
-            absolute_path = os.path.abspath(file)
-            if not os.path.exists(absolute_path):
-                logger.error(f"Required file not found: {absolute_path}")
+            file_path = get_model_path(file)
+            logger.info(f"Checking file: {file_path}")
+            
+            if not os.path.exists(file_path):
+                logger.error(f"Required file not found: {file_path}")
                 return None, None, None, None, None
             else:
-                logger.info(f"Found required file: {absolute_path}")
+                logger.info(f"Found required file: {file_path}")
         
-        feature_names = pd.read_csv("feature_names.csv")["Feature Names"].tolist()
+        # Load feature names
+        feature_names = pd.read_csv(get_model_path("feature_names.csv"))["Feature Names"].tolist()
         logger.info(f"Loaded feature names: {feature_names}")
         
-        scaler = joblib.load("feature_scaler.pkl")
+        # Load scaler
+        scaler = joblib.load(get_model_path("feature_scaler.pkl"))
         logger.info("Loaded feature scaler")
         
-        cardio_probabilities = joblib.load("cardio_probabilities.pkl")
+        # Load cardio probabilities
+        cardio_probabilities = joblib.load(get_model_path("cardio_probabilities.pkl"))
         logger.info("Loaded cardio probabilities")
         
+        # Load PVD models
         models_pvd = {
-            "DecisionTree": joblib.load("DecisionTree_model_pvd.pkl"),
-            "RandomForest": joblib.load("RandomForest_model_pvd.pkl"),
-            "SGD": joblib.load("SGD_model_pvd.pkl"),
-            "XGBoost": joblib.load("XGBoost_model_pvd.pkl")
+            "DecisionTree": joblib.load(get_model_path("DecisionTree_model_pvd.pkl")),
+            "RandomForest": joblib.load(get_model_path("RandomForest_model_pvd.pkl")),
+            "SGD": joblib.load(get_model_path("SGD_model_pvd.pkl")),
+            "XGBoost": joblib.load(get_model_path("XGBoost_model_pvd.pkl"))
         }
         logger.info("Loaded PVD models successfully")
         
+        # Load Cardio models
         models_cardio = {
-            "DecisionTree": joblib.load("DecisionTree_model_cardio.pkl"),
-            "RandomForest": joblib.load("RandomForest_model_cardio.pkl"),
-            "SGD": joblib.load("SGD_model_cardio.pkl"),
-            "XGBoost": joblib.load("XGBoost_model_cardio.pkl")
+            "DecisionTree": joblib.load(get_model_path("DecisionTree_model_cardio.pkl")),
+            "RandomForest": joblib.load(get_model_path("RandomForest_model_cardio.pkl")),
+            "SGD": joblib.load(get_model_path("SGD_model_cardio.pkl")),
+            "XGBoost": joblib.load(get_model_path("XGBoost_model_cardio.pkl"))
         }
         logger.info("Loaded Cardio models successfully")
         
