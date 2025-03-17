@@ -66,8 +66,8 @@ def train_models():
     print(f"Population with PVD: {cardio_prob_with_pvd:.2%}")
     print(f"Population without PVD: {cardio_prob_without_pvd:.2%}")
     
-    # Save cardio probabilities
-    joblib.dump(cardio_probabilities, 'cardio_probabilities.pkl')
+    # Save cardio probabilities with protocol=4
+    joblib.dump(cardio_probabilities, 'models/cardio_probabilities.pkl', protocol=4)
     
     # Define features
     features = ['age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo', 
@@ -77,10 +77,10 @@ def train_models():
     scaler = MinMaxScaler()
     numerical_features = ['age', 'height', 'weight', 'ap_hi', 'ap_lo']
     df[numerical_features] = scaler.fit_transform(df[numerical_features])
-    joblib.dump(scaler, 'feature_scaler.pkl')
+    joblib.dump(scaler, 'models/feature_scaler.pkl', protocol=4)
     
     # Save feature names
-    pd.DataFrame({'Feature Names': features}).to_csv('feature_names.csv', index=False)
+    pd.DataFrame({'Feature Names': features}).to_csv('models/feature_names.csv', index=False)
     
     # Prepare data for PVD prediction
     print("\nPreparing data for PVD prediction...")
@@ -138,8 +138,8 @@ def train_models():
         print(f"\nTraining {name} for PVD...")
         model.fit(X_train_pvd, y_train_pvd)
         
-        # Save model
-        joblib.dump(model, f'{name}_model_pvd.pkl')
+        # Save model with protocol=4
+        joblib.dump(model, f'models/{name}_model_pvd.pkl', protocol=4)
         
         # Evaluate
         y_pred = model.predict(X_test_pvd)
@@ -199,8 +199,8 @@ def train_models():
         print(f"\nTraining {name} for Cardio...")
         model.fit(X_train_cardio, y_train_cardio)
         
-        # Save model
-        joblib.dump(model, f'{name}_model_cardio.pkl')
+        # Save model with protocol=4
+        joblib.dump(model, f'models/{name}_model_cardio.pkl', protocol=4)
         
         # Evaluate
         y_pred = model.predict(X_test_cardio)
