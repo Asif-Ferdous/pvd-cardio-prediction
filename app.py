@@ -18,15 +18,18 @@ logger = logging.getLogger(__name__)
 
 def get_model_path(filename):
     """Get absolute path for model files"""
-    # Check if we're in production (Render) or development
-    if os.environ.get('RENDER'):
-        # In production, files are in the same directory as the app
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    else:
-        # In development, files are in the models directory
-        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
+    # Get the absolute path of the current file (app.py)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     
-    return os.path.join(base_path, filename)
+    # In production (Render), files are in the models directory next to app.py
+    models_dir = os.path.join(base_dir, 'models')
+    
+    # Create models directory if it doesn't exist (mainly for development)
+    if not os.path.exists(models_dir):
+        os.makedirs(models_dir)
+    
+    # Return the full path to the requested file
+    return os.path.join(models_dir, filename)
 
 # Load models and data
 def load_models():
