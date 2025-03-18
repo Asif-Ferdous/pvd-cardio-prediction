@@ -15,18 +15,18 @@ F1: 0.8685
 AUC-ROC: 0.8864
 
 SGD:
-Accuracy: 0.8489
-Precision: 0.8866
-Recall: 0.7276
-F1: 0.7993
-AUC-ROC: 0.8310
+Accuracy: 0.8875
+Precision: 0.8894
+Recall: 0.8314
+F1: 0.8594
+AUC-ROC: 0.8792
 
 XGBoost:
-Accuracy: 0.7757
-Precision: 0.9343
-Recall: 0.4922
-F1: 0.6448
-AUC-ROC: 0.7339
+Accuracy: 0.7774
+Precision: 0.9340
+Recall: 0.4967
+F1: 0.6485
+AUC-ROC: 0.7360
 
 Cardio Models Metrics:
 
@@ -52,11 +52,11 @@ F1: 0.7689
 AUC-ROC: 0.6819
 
 XGBoost:
-Accuracy: 0.7551
-Precision: 0.7551
-Recall: 0.8630
-F1: 0.8054
-AUC-ROC: 0.7323
+Accuracy: 0.7518
+Precision: 0.7525
+Recall: 0.8603
+F1: 0.8028
+AUC-ROC: 0.7289
 
 Cardiovascular Disease Baseline Probabilities:
 Overall population: 0.4948
