@@ -3,10 +3,24 @@ services:
     name: cardio-pvd-prediction
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.8.0
+    plan: standard # This ensures the service stays active
     autoDeploy: true
     healthCheckPath: /test
-    plan: standard # This ensures the service stays active
+    
+  - type: worker
+    name: cardio-pvd-keep-alive
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python keep_alive.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.8.0
+      - key: APP_URL
+        value: https://cardio-pvd-prediction.onrender.com # Replace with your actual app URL
+      - key: PING_INTERVAL_MINUTES
+        value: 5
+    plan: free # Worker service can use free tier
