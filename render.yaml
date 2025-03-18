@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: cardio-pvd-prediction
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.8.0
+    autoDeploy: true
+    healthCheckPath: /test
+    plan: standard # This ensures the service stays active
