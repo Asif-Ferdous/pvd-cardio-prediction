@@ -113,9 +113,10 @@ def train_models():
             random_state=42
         ),
         "SGD": SGDClassifier(
-            loss='log_loss',
-            alpha=0.01,           # Increased regularization
-            max_iter=100,         # Reduced from 1000
+            loss='modified_huber',  # More stable across versions than log_loss
+            alpha=0.01,
+            max_iter=1000,
+            tol=1e-3,
             random_state=42
         ),
         "XGBoost": xgb.XGBClassifier(
