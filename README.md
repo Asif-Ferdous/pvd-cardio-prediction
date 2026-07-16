@@ -187,7 +187,7 @@ Open the local URL printed by Flask and enter patient values to get a PVD-aware 
 
 ## Author
 
-**M M Asif Ferdous** — _add LinkedIn_ · [GitHub](https://github.com/Asif-Ferdous)
+**M M Asif Ferdous** — www.linkedin.com/in/m-m-asif-ferdous-108774b6 · [GitHub](https://github.com/Asif-Ferdous)
 
 ## Citation
 
